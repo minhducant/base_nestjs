@@ -1,0 +1,124 @@
+export enum OrderSide {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
+export enum OrderType {
+  EXTEND = 'EXTEND',
+  NEW_ORDER = 'NEW_ORDER',
+}
+
+export enum DeliveryTime {
+  ANY_TIME = 'ANYTIME',
+  H8_12 = '8h_12h',
+  H12_14 = '12h_14h',
+  H14_16 = '14h_16h',
+  H16_18 = '16h_18h',
+  H18_20 = '18h_20h',
+  H19_21 = '19h_21h',
+  H20_21 = '20h_21h',
+}
+export enum PackageShippingStatus {
+  NOT_DELIVERED = 'NOT DELIVERED',
+  WAIT_RECEIVE = 'WAIT RECEIVE',
+  RECEIVED = 'RECEIVED',
+  NOT_RECEIVED = 'NOT RECEIVED',
+  CANCELED = 'CANCELED',
+}
+
+export enum OrderPaymentMethod {
+  DAIBIKI = 'DAIBIKI',
+  VISA_MASTER_CARD = 'VISA_MASTER_CARD',
+  QR_CODE = 'QR_CODE',
+  DIRECT = 'DIRECT',
+}
+
+export enum OrderPurchaseStatus {
+  Potential_Customer = 'Potential_Customer',
+  Close_Order = 'Close_Order',
+}
+
+export enum ShippingPromotionItemsStatus {
+  SHIPPED = 'SHIPPED',
+  NOT_SHIPPED = 'NOT_SHIPPED',
+}
+
+export enum CancelReason {
+  DONT_GIVE_INFORMATION = 'DONT WANT TO GIVE INFORMATION',
+  NO_PHONE_NUMBER = 'NO PHONE NUMBER',
+  ALREADY_HAS_PROFILE = 'ALREADY HAS A PROFILE ON SB',
+  EXPENSIVE = 'EXPENSIVE',
+  TIME_CONSUMING = 'TIME_CONSUMING',
+  SWITCH_TO_POCKET = 'WANT TO SWITCH TO POCKET',
+}
+
+export enum ReconfirmReason {
+  DONT_GIVE_INFORMATION = 'DONT WANT TO GIVE INFORMATION',
+  NO_PHONE_NUMBER = 'NO PHONE NUMBER',
+  ALREADY_HAS_PROFILE = 'ALREADY HAS A PROFILE ON SB',
+  EXPENSIVE = 'EXPENSIVE',
+  TIME_CONSUMING = 'TIME_CONSUMING',
+  SWITCH_TO_POCKET = 'WANT TO SWITCH TO POCKET',
+}
+
+export enum OrderWifiTemporarily {
+  NOT_RECEIVED = 'NOT_RECEIVED',
+  RECEIVED = 'RECEIVED',
+}
+
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  FILLED = 'FILLED',
+  NEED_RECONFIRMATION = 'NEED_RECONFIRMATION',
+  CONFIRM_INFORMATION = 'CONFIRM_INFORMATION',
+  WAITING_FOR_SHIPPING = 'WAITING_FOR_SHIPPING',
+  SCHEDULED_PICKUP = 'SCHEDULED_PICKUP', // đã xác nhận
+  SHIPPING = 'SHIPPING',
+  SHIPPED = 'SHIPPED',
+  REUFUND = 'REUFUND',
+  REJECTED = 'REJECTED',
+  CANCELED = 'CANCELED',
+  COMPLETE = 'COMPLETE',
+  NEW = 'NEW',
+  ORDER = 'ORDER',
+  ORDER_MANAGER = 'ORDER_MANAGER',
+  SHIPPING_MANAGER = 'SHIPPING_MANAGER',
+  // UNTRIGGERED = 'UNTRIGGERED',
+  PACKAGED = 'PACKAGED',
+  WAITING_DELIVERY = 'WAITING_DELIVERY',
+  IN_DELIVERY = 'IN_DELIVERY',
+  NOT_DELIVERED = 'NOT_DELIVERED',
+  WAITING_PAYMENT = 'WAITING_PAYMENT',
+  IS_SHIPPED="IS_SHIPPED"
+}
+
+export enum OrderStopType {
+  STOP_LIMIT = 'STOP_LIMIT',
+  STOP_MARKET = 'STOP_MARKET',
+  TRAILING_STOP = 'TRAILING_STOP',
+  TAKE_PROFIT_LIMIT = 'TAKE_PROFIT_LIMIT',
+  TAKE_PROFIT_MARKET = 'TAKE_PROFIT_MARKET',
+}
+
+export enum OrderTimeInForce {
+  GTC = 'GTC',
+  IOC = 'IOC',
+  FOK = 'FOK',
+}
+
+export enum OrderTrigger {
+  LAST = 'LAST',
+  INDEX = 'INDEX',
+  ORACLE = 'ORACLE',
+}
+
+export enum TimeContactEnum {
+  '8h - 12h' = 0,
+  '12h - 14h' = 1,
+  '14h - 16h' = 2,
+  '16h - 18h' = 3,
+  '18h - 20h' = 4,
+  '19h - 21h' = 5,
+  '20h - 21h' = 6,
+  'AnyTime' = 7,
+}

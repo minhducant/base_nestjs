@@ -1,0 +1,27 @@
+stages:
+  # - build
+  - deploy
+
+# build:
+#   stage: build
+#   image: node:20
+#   script:
+#     - npm install --legacy-peer-deps
+#     - npm run build
+#   only:
+#     - main
+
+
+deploy:
+  stage: deploy
+
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H $SERVER >> ~/.ssh/known_hosts
+
+  script:
+    - ssh $USER_NAME@$SERVER "cd project && cd Hallo-BE3 && git pull && yarn && yarn build && pm2 restart all"
+  only:
+    - main
