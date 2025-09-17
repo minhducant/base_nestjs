@@ -29,12 +29,12 @@ if (!isQueueEnabled) {
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: "smtp.larksuite.com",
+        host: "smtp.gmail.com",
         port: '465',
         secure: true, // true for 465, false for other ports
         auth: {
-          user: 'support@hallo.co',
-          pass: 'Q8qhpc80vPZlvGFM',
+          user: 'vuloc1810@gmail.com',
+          pass: 'nyxa medo sagy ishr',
         },
       },
       defaults: {

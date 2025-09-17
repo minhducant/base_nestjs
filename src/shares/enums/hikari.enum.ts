@@ -34,7 +34,7 @@ export enum TimeContactEnum {
   'AnyTime' = 8,
 }
 
-export enum TypePromotionHallo {
+export enum TypePromotionecomove {
   'tplink' = 0,
   'tien_mat' = 1,
 }

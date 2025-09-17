@@ -31,8 +31,8 @@ export class MailService {
 
     await this.mailerService.sendMail({
       to: email,
-      from: `"HALLO" <${mailFrom}>`, // override default from
-      subject: 'HALLO - Forgot Password',
+      from: `"ecomove" <${mailFrom}>`, // override default from
+      subject: 'ecomove - Forgot Password',
       template: 'src/modules/mail/templates/forgot-password.hbs', // `.hbs` extension is appended automatically
       context: {
         email,
@@ -60,7 +60,7 @@ export class MailService {
 
     await this.mailerService.sendMail({
       to: email,
-      from: `"HALLO" <${mailFrom}>`, // override default from
+      from: `"ecomove" <${mailFrom}>`, // override default from
       subject: 'Active Account',
       template: 'src/modules/mail/templates/sign-up.hbs', // `.hbs` extension is appended automatically
       context: {

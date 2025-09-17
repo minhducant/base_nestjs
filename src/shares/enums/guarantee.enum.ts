@@ -45,9 +45,9 @@ export enum CuttingNumberEnum {
 
 export enum PaySideEnum {
   CUSTOMER = 'Khách hàng',
-  HALLO = 'Hallo',
+  ecomove = 'ecomove',
 }
 
 export enum PaymentStatusEnum {}
 // CUSTOMER = 'Khách hàng',
-// HALLO = 'Hallo',
+// ecomove = 'ecomove',

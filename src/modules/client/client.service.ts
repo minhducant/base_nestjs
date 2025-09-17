@@ -113,17 +113,17 @@ export class ClientService {
       is_verify: true,
       name,
       gender,
-      code: this.generateRandomHalloCode(),
+      code: this.generateRandomecomoveCode(),
     })
   }
-  generateRandomHalloCode(): string {
+  generateRandomecomoveCode(): string {
     const currentYear = new Date().getFullYear()
     const currentMonth = ('0' + (new Date().getMonth() + 1)).slice(-2)
     const randomSuffix = Math.floor(Math.random() * 1000)
       .toString()
       .padStart(3, '0')
-    const halloCode = `HALLO${currentYear}${currentMonth}${randomSuffix}`
-    return halloCode
+    const ecomoveCode = `ecomove${currentYear}${currentMonth}${randomSuffix}`
+    return ecomoveCode
   }
 
   async createClient(createClientDto: CreateClientDto): Promise<Client> {
@@ -156,7 +156,7 @@ export class ClientService {
     const payment_code = await generatePaymentCode()
     return this.clientModel.create({
       ...createClientDto,
-      code: this.generateRandomHalloCode(),
+      code: this.generateRandomecomoveCode(),
       password: hashPassword,
       payment_code,
       source_id: new mongoose.Types.ObjectId(source_id),
@@ -304,7 +304,7 @@ export class ClientService {
 
     return this.clientModel.create({
       facebook_id: profile.id,
-      code: this.generateRandomHalloCode(),
+      code: this.generateRandomecomoveCode(),
       name: `${profile.first_name} ${profile.last_name}`,
       image_url: profile.picture.data.url,
       role: ClientRole.khach_hang,
@@ -332,7 +332,7 @@ export class ClientService {
 
     return this.clientModel.create({
       google_id: sub,
-      code: this.generateRandomHalloCode(),
+      code: this.generateRandomecomoveCode(),
       name: `${given_name} ${family_name}`,
       image_url: picture,
       role: ClientRole.khach_hang,

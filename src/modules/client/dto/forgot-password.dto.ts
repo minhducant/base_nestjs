@@ -5,7 +5,7 @@ import { Trim, ToLowerCase } from 'src/shares/decorators/transforms.decorator'
 export class ForgotPasswordDto {
   @ApiProperty({
     required: true,
-    example: 'hallo@example.com',
+    example: 'ecomove@example.com',
   })
   @IsDefined()
   @Trim()
