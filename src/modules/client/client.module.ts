@@ -1,14 +1,15 @@
 import { Module, CacheModule } from '@nestjs/common'
-import { ClientController } from './client.controller'
-import { ClientService } from './client.service'
 import { MongooseModule } from '@nestjs/mongoose'
-import { Client, ClientSchema } from './schemas/client.schema'
-import { ClientPolicy, ClientPolicySchema } from './schemas/client-policy.schema'
 import * as redisStore from 'cache-manager-redis-store'
-import { redisConfig } from 'src/configs/redis.config'
+
+import { ClientService } from './client.service'
 import { MailModule } from '../mail/mail.module'
+import { ClientController } from './client.controller'
+import { redisConfig } from 'src/configs/redis.config'
 import { EmailService } from 'src/shares/helpers/mail.helpers'
 import { User, UserSchema } from '../user/schemas/user.schema'
+import { Client, ClientSchema } from './schemas/client.schema'
+import { ClientPolicy, ClientPolicySchema } from './schemas/client-policy.schema'
 
 @Module({
   imports: [

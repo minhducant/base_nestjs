@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Exclude } from 'class-transformer'
 import { Document, Schema as MongooseSchema } from 'mongoose'
-import { ClientRole, ClientStatus, ClientStatusMode } from 'src/shares/enums/client.enum'
+
 import { CLIENT_POLICY_MODEL } from './client-policy.schema'
+import { ClientRole, ClientStatus, ClientStatusMode } from 'src/shares/enums/client.enum'
+
 export const CLIENT_MODEL = 'clients'
 export const CLIENT_DELETE = 'client_deleted'
 
@@ -146,9 +148,6 @@ export class Client {
 
   @Prop({ required: false, type: String })
   nationality: string
-
-  @Prop({ required: false, type: String , index: true})
-  payment_code: string
 }
 
 export type ClientDocument = Client & Document

@@ -1,35 +1,35 @@
 import { CACHE_MANAGER, Inject, Injectable, BadRequestException, NotFoundException, HttpStatus } from '@nestjs/common'
-import { InjectModel } from '@nestjs/mongoose'
-import { Client, ClientDocument } from './schemas/client.schema'
-import mongoose, { Model, Mongoose } from 'mongoose'
-import { MailService } from '../mail/mail.service'
-import { SignUpCacheInterface, SignUpDto } from './dto/sign-up.dto'
-import { randomCodeNumber } from 'src/shares/helpers/utils'
-import { GetClientDto } from './dto/get-client.dto'
 import { Cache } from 'cache-manager'
-import { SignUpByCodeDto } from './dto/sign-up-by-code.dto'
-import { FORGOT_PASSWORD_CACHE, FORGOT_PASSWORD_EXPIRY, SIGN_UP_CACHE, SIGN_UP_EXPIRY } from '../auth/auth.constants'
+import mongoose, { Model } from 'mongoose'
+import { InjectModel } from '@nestjs/mongoose'
+
 import { httpErrors } from 'src/shares/exceptions'
-import { CreateClientDto } from './dto/create-client.dto'
-import { ClientRole, ClientStatus } from 'src/shares/enums/client.enum'
-import { CacheForgotPassword, ForgotPasswordDto } from './dto/forgot-password.dto'
-import ChangePasswordByCodeDto from './dto/change-password-by-code.dto'
+import { MailService } from '../mail/mail.service'
+import { GetClientDto } from './dto/get-client.dto'
+import { GetClientsDto } from './dto/get-clients.dto'
 import ChangePasswordDto from './dto/change-password.dto'
-import { generateHash, validateHash } from 'src/shares/helpers/bcrypt'
-import { GetClientByPhoneOrderDto, GetClientsDto, GetPaymentByClientDto } from './dto/get-clients.dto'
+import { CreateClientDto } from './dto/create-client.dto'
+import { randomCodeNumber } from 'src/shares/helpers/utils'
+import { SignUpByCodeDto } from './dto/sign-up-by-code.dto'
 import { ResPagingDto } from 'src/shares/dtos/pagination.dto'
-import { UserFacebookInfoDto } from '../auth/dto/user-facebook-info.dto'
-import { UserGoogleInfoDto } from '../auth/dto/user-google-info.dto'
 import { User, UserDocument } from '../user/schemas/user.schema'
-import { UserRole } from 'src/shares/enums/user.enum'
-import { IdsDto } from 'src/shares/dtos/param.dto'
+import { Client, ClientDocument } from './schemas/client.schema'
+import { SignUpCacheInterface, SignUpDto } from './dto/sign-up.dto'
+import { UserGoogleInfoDto } from '../auth/dto/user-google-info.dto'
+import { generateHash, validateHash } from 'src/shares/helpers/bcrypt'
+import { ClientRole, ClientStatus } from 'src/shares/enums/client.enum'
+import ChangePasswordByCodeDto from './dto/change-password-by-code.dto'
+import { UserFacebookInfoDto } from '../auth/dto/user-facebook-info.dto'
+import { CacheForgotPassword, ForgotPasswordDto } from './dto/forgot-password.dto'
+import { FORGOT_PASSWORD_CACHE, FORGOT_PASSWORD_EXPIRY, SIGN_UP_CACHE, SIGN_UP_EXPIRY } from '../auth/auth.constants'
+
 @Injectable()
 export class ClientService {
   constructor(
-    @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private mailService: MailService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
+    private mailService: MailService
   ) {}
 
   async findOne(condition: GetClientDto, selectPassword = false): Promise<Client> {
@@ -64,6 +64,7 @@ export class ClientService {
     const { hashPassword } = await generateHash(password)
     await this.mailService.sendSignUpEmail({ email, code, name, password: hashPassword, birthday, gender })
   }
+
   async deleteClientById(clientId: string): Promise<{ status: number; message: string }> {
     const client = await this.clientModel.findById(clientId)
     if (!client) {
@@ -116,6 +117,7 @@ export class ClientService {
       code: this.generateRandomecomoveCode(),
     })
   }
+
   generateRandomecomoveCode(): string {
     const currentYear = new Date().getFullYear()
     const currentMonth = ('0' + (new Date().getMonth() + 1)).slice(-2)
@@ -141,26 +143,12 @@ export class ClientService {
       )
       return this.clientModel.findById(existingClient._id)
     }
-    const generatePaymentCode = async (): Promise<string> => {
-      let code: string
-      let isExist = true
-      while (isExist) {
-        code = Math.floor(100000 + Math.random() * 900000).toString()
-        const existingClient = await this.clientModel.findOne({ payment_code: code }).lean()
-        if (!existingClient) {
-          isExist = false
-        }
-      }
-      return code
-    }
-    const payment_code = await generatePaymentCode()
     return this.clientModel.create({
       ...createClientDto,
-      code: this.generateRandomecomoveCode(),
       password: hashPassword,
-      payment_code,
-      source_id: new mongoose.Types.ObjectId(source_id),
       status: ClientStatus.ACTIVE,
+      code: this.generateRandomecomoveCode(),
+      source_id: new mongoose.Types.ObjectId(source_id),
     })
   }
 
@@ -183,13 +171,14 @@ export class ClientService {
   }
 
   async changePasswordByCode(changePasswordByCode: ChangePasswordByCodeDto): Promise<void> {
-    const { verifyCode, password, email } = changePasswordByCode
-    const clientId = await this.checkVerificationCode(verifyCode, email)
+    const { code, password, email } = changePasswordByCode
+    const clientId = await this.checkVerificationCode(changePasswordByCode)
     const { hashPassword } = await generateHash(password)
-    await this.clientModel.updateOne({ _id: clientId }, { password: hashPassword, name: 'hkt' })
+    await this.clientModel.updateOne({ _id: clientId }, { password: hashPassword })
   }
 
-  async checkVerificationCode(verifyCode: string, email: string): Promise<Client> {
+  async checkVerificationCode(dto: ChangePasswordByCodeDto): Promise<Client> {
+    const { code, email } = dto
     const client = await this.clientModel.findOne({ email })
     if (!client) {
       throw new BadRequestException(httpErrors.CLIENT_EMAIL_CONFIRM_NOT_FOUND)
@@ -199,12 +188,10 @@ export class ClientService {
       throw new BadRequestException()
     }
     const forgotPasswordInfo: CacheForgotPassword = JSON.parse(verifyClientCache)
-
     if (forgotPasswordInfo.attempt > 4) {
       throw new BadRequestException(httpErrors.CLIENT_CODE_INVALID)
     }
-
-    if (verifyCode != forgotPasswordInfo.code) {
+    if (code != forgotPasswordInfo.code) {
       await this.cacheManager.set<string>(
         `${FORGOT_PASSWORD_CACHE}${email}`,
         JSON.stringify({ ...forgotPasswordInfo, attempt: forgotPasswordInfo.attempt + 1 }),
@@ -214,7 +201,6 @@ export class ClientService {
       )
       throw new BadRequestException(httpErrors.CLIENT_EXPIRED_CODE)
     }
-
     return client
   }
 
@@ -230,7 +216,7 @@ export class ClientService {
   }
 
   async findAll(getUsersDto: GetClientsDto): Promise<ResPagingDto<Client[]>> {
-    const { sort, page, limit, id, name, phone, pancake, code, email, role, start_date, end_date, cust_id, payment_code } = getUsersDto
+    const { sort, page, limit, id, name, phone, pancake, code, email, role, start_date, end_date, cust_id } = getUsersDto
     const query: any = { deleted: false }
     if (id || name) {
       query.$or = []
@@ -246,9 +232,6 @@ export class ClientService {
     }
     if (phone) {
       query.phone = phone.trim()
-    }
-    if (payment_code) {
-      query.payment_code = payment_code.trim()
     }
     if (pancake) {
       query.pancake = pancake.trim()
@@ -290,7 +273,6 @@ export class ClientService {
 
   async findOrCreateFacebookUser(profile: UserFacebookInfoDto): Promise<Client> {
     const client = await this.clientModel.findOne({ facebook_id: profile.id })
-
     if (client) {
       return this.clientModel.findByIdAndUpdate(
         client._id,
@@ -301,7 +283,6 @@ export class ClientService {
         { new: true }
       )
     }
-
     return this.clientModel.create({
       facebook_id: profile.id,
       code: this.generateRandomecomoveCode(),
@@ -317,7 +298,6 @@ export class ClientService {
   async findOrCreateGoogleUser(profile: UserGoogleInfoDto): Promise<Client> {
     const { sub, picture, given_name, family_name, email } = profile.data
     const client = await this.clientModel.findOne({ google_id: sub })
-
     if (client) {
       return this.clientModel.findByIdAndUpdate(
         client._id,
@@ -329,7 +309,6 @@ export class ClientService {
         { new: true }
       )
     }
-
     return this.clientModel.create({
       google_id: sub,
       code: this.generateRandomecomoveCode(),
@@ -341,109 +320,5 @@ export class ClientService {
       status: ClientStatus.ACTIVE,
       is_verify: true,
     })
-  }
-
-  getPipelineClientPayment(query: GetPaymentByClientDto): any[] {
-    const match = {}
-    if (query.id) {
-      match['_id'] = new mongoose.Types.ObjectId(query.id)
-    }
-    if (query.customer_code) {
-      match['code'] = query.customer_code
-    }
-    if (query.pancake) {
-      match['pancake'] = query.pancake
-    }
-    return [
-      {
-        $match: match,
-      },
-      {
-        $lookup: {
-          from: 'smartpit',
-          localField: '_id',
-          foreignField: 'client_id',
-          as: 'client_smartpit',
-        },
-      },
-      {
-        $lookup: {
-          from: 'payment',
-          localField: '_id',
-          foreignField: 'client_id',
-          as: 'payment_client',
-        },
-      },
-      {
-        $addFields: {
-          payment_buy: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: '$payment_client',
-                  as: 'payment_buy',
-                  cond: {
-                    $eq: ['$$payment_buy.type', 'Mua hàng'],
-                  },
-                },
-              },
-              0,
-            ],
-          },
-        },
-      },
-      {
-        $addFields: {
-          payment_monthly: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: '$payment_client',
-                  as: 'payment_monthly',
-                  cond: {
-                    $eq: ['$$payment_monthly.type', 'Gia hạn'],
-                  },
-                },
-              },
-              0,
-            ],
-          },
-        },
-      },
-      {
-        $addFields: {
-          payment_cskh: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: '$payment_client',
-                  as: 'payment_cskh',
-                  cond: {
-                    $eq: ['$$payment_cskh.type', 'Chăm sóc khách hàng'],
-                  },
-                },
-              },
-              0,
-            ],
-          },
-        },
-      },
-      {
-        $project: {
-          payment_client: 0,
-        },
-      },
-    ]
-  }
-  async deleteClients(ids: any, delete_by: string): Promise<void> {
-    await Promise.all(
-      ids.map(async (_id: any) => {
-        const client = await this.clientModel.findById(_id)
-        if (!client) {
-          throw new BadRequestException('Không tìm thấy khách hàng!')
-        }
-        await this.clientModel.findOneAndUpdate({ _id }, { deleted: true })
-      })
-    )
   }
 }

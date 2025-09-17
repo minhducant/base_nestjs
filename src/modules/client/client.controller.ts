@@ -1,33 +1,30 @@
-import { Controller, Post, Get, Body, Query, Param, Patch, Delete, NotFoundException, HttpCode } from '@nestjs/common'
-import { ClientService } from './client.service'
+import { Controller, Post, Get, Body, Query, Param, Patch, Delete } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { SignUpDto } from './dto/sign-up.dto'
+
+import { ClientService } from './client.service'
+import { Client } from './schemas/client.schema'
+import { GetClientsDto } from './dto/get-clients.dto'
+import { CreateClientDto } from './dto/create-client.dto'
+import { IdDto, IdsDto } from 'src/shares/dtos/param.dto'
+import ChangePasswordDto from './dto/change-password.dto'
 import { SignUpByCodeDto } from './dto/sign-up-by-code.dto'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
-import ChangePasswordByCodeDto from './dto/change-password-by-code.dto'
-import ChangePasswordDto from './dto/change-password.dto'
-import { GetClientByPhoneOrderDto, GetClientsDto, GetPaymentByClientDto } from './dto/get-clients.dto'
 import { ResPagingDto } from 'src/shares/dtos/pagination.dto'
-import { Client } from './schemas/client.schema'
-import { CreateClientDto } from './dto/create-client.dto'
-import { ClientAuth, UserAuth } from 'src/shares/decorators/http.decorators'
-import { IdDto, IdsDto } from 'src/shares/dtos/param.dto'
 import { UserID } from 'src/shares/decorators/get-user-id.decorator'
-import { UserService } from '../user/user.service'
+import ChangePasswordByCodeDto from './dto/change-password-by-code.dto'
+
 @ApiTags('Client')
 @Controller('client')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @Get()
-  // @ApiBearerAuth()
-  // @ClientAuth()
+  @ApiBearerAuth()
   @ApiOperation({ summary: '[ Client ] Get all client' })
   async findAll(@Query() query: GetClientsDto): Promise<ResPagingDto<Client[]>> {
     return this.clientService.findAll(query)
   }
 
-  // todo: create client testing
   @Post()
   @ApiOperation({ summary: '[ Client ] Create new client' })
   async createUser(@Body() createUserDto: CreateClientDto) {
@@ -36,7 +33,6 @@ export class ClientController {
   }
 
   @Delete(':id')
-  @HttpCode(200) 
   @ApiOperation({ summary: '[ Client ] Delete client by ID' })
   async deleteClient(@Param('id') id: string): Promise<{ status: number; message: string }> {
     return this.clientService.deleteClientById(id)
@@ -53,10 +49,17 @@ export class ClientController {
   changePassword(@Body() changePasswordDto: ChangePasswordDto): Promise<void> {
     return this.clientService.changePassword(changePasswordDto)
   }
+
   @Post('verify-account')
   @ApiOperation({ summary: '[ Client ] Client Verification by code' })
   async signUpByCode(@Body() signUpByCodeDto: SignUpByCodeDto): Promise<void> {
     return this.clientService.signUpByCode(signUpByCodeDto)
+  }
+
+  @Post('verify-otp-forget')
+  @ApiOperation({ summary: '[ Client ] Client verification by code from email' })
+  async verifyOtpForget(@Body() changePasswordByCode: ChangePasswordByCodeDto): Promise<any> {
+    return this.clientService.checkVerificationCode(changePasswordByCode)
   }
 
   @Post('forgot-password')

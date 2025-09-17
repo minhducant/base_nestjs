@@ -211,7 +211,6 @@ export class AuthService {
   async loginFacebook(loginFacebookDto: LoginFacebookDto): Promise<ResponseLogin> {
     const { accessToken } = loginFacebookDto
     const url = `${baseFacebookUrl}me?fields=id,first_name,last_name,picture&access_token=${accessToken}`
-    console.log('url', url)
     const userData: UserFacebookInfoDto = await lastValueFrom(
       this.httpService
         .get(url)
