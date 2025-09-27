@@ -10,6 +10,7 @@ import { mongodb } from 'src/configs/database.config'
 import { redisConfig } from 'src/configs/redis.config'
 import { AuthModule } from './modules/auth/auth.module'
 import { MailModule } from './modules/mail/mail.module'
+import {TripModule} from "./modules/trip/trip.module";
 import { UsersModule } from './modules/user/user.module'
 import { ClientModule } from './modules/client/client.module'
 import { KafkaModule } from 'src/shares/kafka-client/kafka-module'
@@ -34,5 +35,6 @@ const Modules = [
   UsersModule,
   MailModule,
   ClientModule,
+  TripModule,
 ]
 export default Modules
