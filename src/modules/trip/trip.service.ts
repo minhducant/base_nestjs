@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import mongoose, { Model } from 'mongoose'
+import { Cron, CronExpression } from '@nestjs/schedule'
 
+import { GetTripDto } from './dto/get-trip.dto'
+import { ResPagingDto } from 'src/shares/dtos/pagination.dto'
 import { TripItem, TripItemDocument } from './schemas/trip.schema'
-
 @Injectable()
 export class TripService {
   constructor(
@@ -43,8 +45,68 @@ export class TripService {
     return { deleted: true }
   }
 
-  async findByClient(clientId: string): Promise<TripItem[]> {
-    return this.tripModel.find({ client_id: new mongoose.Types.ObjectId(clientId) }).exec()
+  async findByClient(clientId: string, getTripDto: GetTripDto): Promise<ResPagingDto<any[]>> {
+    const { page, limit } = getTripDto
+
+    const query: any = {
+      client_id: new mongoose.Types.ObjectId(clientId),
+      status: 'ended',
+    }
+
+    const [result, total] = await Promise.all([
+      this.tripModel
+        .aggregate([
+          {
+            $match: {
+              ...query,
+            },
+          },
+          {
+            $sort: {
+              _id: -1,
+            },
+          },
+          {
+            $skip: (page - 1) * limit,
+          },
+          {
+            $limit: limit,
+          },
+          {
+            $addFields: {
+              dateKey: {
+                $dateToString: { format: '%d/%m/%Y', date: '$createdAt' },
+              },
+            },
+          },
+          {
+            $sort: { createdAt: -1 },
+          },
+          {
+            $group: {
+              _id: '$dateKey',
+              data: { $push: '$$ROOT' },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              title: '$_id',
+              data: 1,
+            },
+          },
+          {
+            $sort: { title: -1 },
+          },
+        ])
+        .exec(),
+      this.tripModel.countDocuments(query),
+    ])
+    return {
+      result,
+      total,
+      lastPage: Math.ceil(total / limit),
+    }
   }
 
   async findOngoingTripByClient(clientId: string): Promise<TripItem> {

@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Patch } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Patch, Query } from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger'
 
 import { TripService } from './trip.service'
+import { GetTripDto } from './dto/get-trip.dto'
 import { TripItem } from './schemas/trip.schema'
 import { ClientAuth } from 'src/shares/decorators/http.decorators'
 import { UserID } from 'src/shares/decorators/get-user-id.decorator'
@@ -15,8 +16,8 @@ export class TripController {
   @ApiBearerAuth()
   @ClientAuth()
   @ApiOperation({ summary: '[TRIP] Lấy danh sách trip theo client' })
-  async findByClient(@UserID() client_id: string) {
-    return this.tripService.findByClient(client_id)
+  async findByClient(@UserID() client_id: string, @Query() query: GetTripDto) {
+    return this.tripService.findByClient(client_id, query)
   }
 
   @Get('ongoing')

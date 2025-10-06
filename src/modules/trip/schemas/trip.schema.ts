@@ -54,6 +54,14 @@ export class TripItem {
   @Prop({ required: true })
   destination_text: string
 
+  @ApiProperty({ example: '15.2 km', description: 'Quãng đường hiển thị', required: false })
+  @Prop({ required: false })
+  distance_text?: string
+
+  @ApiProperty({ example: '30 phút', description: 'Thời gian hiển thị', required: false })
+  @Prop({ required: false })
+  duration_text?: string
+
   @ApiProperty({ example: '2025-09-24T08:00:00.000Z', description: 'Thời gian bắt đầu', required: false, type: String })
   @Prop()
   startedAt?: string
@@ -63,8 +71,18 @@ export class TripItem {
   endedAt?: string
 
   @ApiProperty({ example: 2.5, description: 'Khối lượng CO2 (kg)', required: false, type: Number, default: 0 })
-  @Prop()
+  @Prop({ default: 0 })
   co2?: number
+
+  @ApiProperty({
+    example: 2.8,
+    description: 'Lượng CO2 ước tính (kg)',
+    required: false,
+    type: Number,
+    default: 0,
+  })
+  @Prop({ default: 0 })
+  co2_estimated?: number
 
   @ApiProperty({ example: 15.2, description: 'Quãng đường (km)', required: false, type: Number, default: 0 })
   @Prop()
