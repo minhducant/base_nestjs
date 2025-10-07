@@ -157,6 +157,18 @@ export class ClientService {
     if (!client) {
       throw new BadRequestException()
     }
+    if (dto.email && dto.email !== client.email) {
+      const existingEmail = await this.clientModel.findOne({ email: dto.email, _id: { $ne: _id } })
+      if (existingEmail) {
+        throw new BadRequestException('EMAIL_ALREADY_EXIST')
+      }
+    }
+    if (dto.phone && dto.phone !== client.phone) {
+      const existingPhone = await this.clientModel.findOne({ phone: dto.phone, _id: { $ne: _id } })
+      if (existingPhone) {
+        throw new BadRequestException('PHONE_ALREADY_EXIST')
+      }
+    }
     await this.clientModel.findOneAndUpdate({ _id }, { ...dto, update_by: userId, status: dto.status }, { new: true })
   }
 

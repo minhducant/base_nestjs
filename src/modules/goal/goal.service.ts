@@ -27,14 +27,67 @@ export class GoalService {
 
   async findGoal(client_id: string, month: string): Promise<Goal | null> {
     const query: any = {}
-    if (client_id) query.client_id = new Types.ObjectId(client_id)
-    if (month) query.month = month
-    return this.goalModel
-      .findOne({
-        client_id: new Types.ObjectId(client_id),
-        month,
-      })
+    if (client_id) {
+      query['client_id'] = new Types.ObjectId(client_id)
+    }
+    const targetMonth = month || this.getCurrentMonth()
+    query.month = targetMonth
+    const [mm, yyyy] = targetMonth.split('/')
+    const startDate = new Date(Number(yyyy), Number(mm) - 1, 1)
+    const endDate = new Date(Number(yyyy), Number(mm), 1)
+    const result = await this.goalModel
+      .aggregate([
+        {
+          $match: {
+            ...query,
+          },
+        },
+        {
+          $limit: 1,
+        },
+        {
+          $lookup: {
+            from: 'trip',
+            let: { clientId: '$client_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [{ $eq: ['$client_id', '$$clientId'] }, { $gte: ['$createdAt', startDate] }, { $lt: ['$createdAt', endDate] }],
+                  },
+                },
+              },
+              { $project: { _id: 1, co2: 1, createdAt: 1 } },
+            ],
+            as: 'trip',
+          },
+        },
+        {
+          $addFields: {
+            achieved_co2: {
+              $round: [
+                {
+                  $sum: {
+                    $map: {
+                      input: '$trip',
+                      as: 't',
+                      in: { $ifNull: ['$$t.co2', 0] },
+                    },
+                  },
+                },
+                2,
+              ],
+            },
+          },
+        },
+        {
+          $project: {
+            trip: 0,
+          },
+        },
+      ])
       .exec()
+    return result.length > 0 ? result[0] : null
   }
 
   async findOne(id: string): Promise<Goal> {
@@ -59,5 +112,12 @@ export class GoalService {
       throw new NotFoundException(`Goal với id "${id}" không tồn tại`)
     }
     return { message: 'Xoá goal thành công' }
+  }
+
+  getCurrentMonth(): string {
+    const now = new Date()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const year = now.getFullYear()
+    return `${month}/${year}`
   }
 }

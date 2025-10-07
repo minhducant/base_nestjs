@@ -24,7 +24,7 @@ export class GoalController {
   @ApiBearerAuth()
   @ClientAuth()
   @ApiOperation({ summary: 'Lấy danh sách các mục tiêu giảm CO₂' })
-  @ApiQuery({ name: 'month', required: false, description: 'Lọc theo tháng (YYYY-MM)' })
+  @ApiQuery({ name: 'month', required: false, description: 'Lọc theo tháng (MM/YYYY)' })
   async findAll(@UserID() client_id?: string, @Query('month') month?: string): Promise<Goal | null> {
     return this.goalService.findGoal(client_id, month)
   }
