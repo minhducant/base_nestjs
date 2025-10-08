@@ -16,7 +16,7 @@
     "importHelpers": true,
     "resolveJsonModule": true,
     "checkJs": false,
-    "types": ["node"],
+    "types": ["node", "Multer"],
     "typeRoots": ["./node_modules/@types", "../node_modules/@types", "../../node_modules/@types"]
   }
 }

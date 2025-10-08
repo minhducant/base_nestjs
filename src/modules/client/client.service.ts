@@ -218,10 +218,10 @@ export class ClientService {
 
   async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
     const { email, password, newPassword } = changePasswordDto
-    const user = await this.clientModel.findOne({ email })
+    const user = await this.clientModel.findOne({ email }).select('+password')
     const validatePassword = await validateHash(password, user?.password || '')
     if (!user || !validatePassword) {
-      throw new BadRequestException(httpErrors.USER_WRONG_PASSWORD)
+      throw new BadRequestException("password_incorrect")
     }
     const { hashPassword } = await generateHash(newPassword)
     await this.clientModel.updateOne({ _id: user.id }, { password: hashPassword })

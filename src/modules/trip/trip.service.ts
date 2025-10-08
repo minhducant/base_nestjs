@@ -121,4 +121,69 @@ export class TripService {
     }
     return trip
   }
+
+  async getReport(clientId: string, getTripDto: GetTripDto): Promise<any> {
+    const { start_date, end_date } = getTripDto
+    const start = start_date ? new Date(`${start_date}T00:00:00.000Z`) : null
+    const end = end_date ? new Date(`${end_date}T23:59:59.999Z`) : null
+    const match = {
+      client_id: new mongoose.Types.ObjectId(clientId),
+      status: 'ended',
+      createdAt: { $gte: start, $lte: end },
+    }
+    const vehicles = ['car', 'motorbike', 'bus', 'bicycle', 'walk', 'airplane', 'train', 'bike', 'truck']
+    const dailyPromise = this.tripModel
+      .aggregate([
+        { $match: match },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+            },
+            value: { $sum: '$co2_estimated' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: '$_id',
+            value: { $round: ['$value', 2] },
+          },
+        },
+        { $sort: { date: 1 } },
+      ])
+      .exec()
+    const vehiclePromise = this.tripModel
+      .aggregate([
+        { $match: match },
+        {
+          $group: {
+            _id: '$vehicle',
+            total_co2: { $sum: '$co2_estimated' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            vehicle: '$_id',
+            total_co2: { $round: ['$total_co2', 2] },
+          },
+        },
+      ])
+      .exec()
+    const [dailyData, vehicleData] = await Promise.all([dailyPromise, vehiclePromise])
+    const vehicleResult: Record<string, number> = {}
+    for (const v of vehicles) {
+      const found = vehicleData.find((d) => d.vehicle === v)
+      vehicleResult[v] = found ? found.total_co2 : 0
+    }
+    const total = Object.values(vehicleResult).reduce((a, b) => a + b, 0)
+    return {
+      daily: dailyData,
+      by_vehicle: {
+        total: Math.round(total * 100) / 100,
+        vehicles: vehicleResult,
+      },
+    }
+  }
 }

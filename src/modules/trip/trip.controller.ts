@@ -28,6 +28,14 @@ export class TripController {
     return this.tripService.findOngoingTripByClient(client_id)
   }
 
+  @Get('report')
+  @ApiBearerAuth()
+  @ClientAuth()
+  @ApiOperation({ summary: '[REPORT] Báo cáo tổng lượng phát thải theo ngày' })
+  async getReport(@UserID() client_id: string, @Query() query: GetTripDto) {
+    return this.tripService.getReport(client_id, query)
+  }
+
   @Get(':id')
   @ApiBearerAuth()
   @ClientAuth()

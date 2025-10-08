@@ -93,12 +93,12 @@ export class TripItem {
   duration?: number
 
   @ApiProperty({
-    enum: ['car', 'motorbike', 'bus', 'bicycle', 'walk'],
+    enum: ['car', 'motorbike', 'bus', 'bicycle', 'walk', 'airplane', 'train', 'bike', 'truck'],
     example: 'car',
     description: 'Phương tiện di chuyển',
   })
-  @Prop({ required: true, enum: ['car', 'motorbike', 'bus', 'bicycle', 'walk', 'bike', 'truck'] })
-  vehicle: 'car' | 'motorbike' | 'bus' | 'bicycle' | 'walk' | 'bike' | 'truck'
+  @Prop({ required: true, enum: ['car', 'motorbike', 'bus', 'bicycle', 'walk', 'airplane', 'train', 'bike', 'truck'] })
+  vehicle: 'car' | 'motorbike' | 'bus' | 'bicycle' | 'walk' | 'airplane' | 'train' | 'bike' | 'truck'
 
   @ApiProperty({
     enum: ['planned', 'ongoing', 'ended'],
