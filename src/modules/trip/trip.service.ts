@@ -131,7 +131,7 @@ export class TripService {
       status: 'ended',
       createdAt: { $gte: start, $lte: end },
     }
-    const vehicles = ['car', 'motorbike', 'bus', 'bicycle', 'walk', 'airplane', 'train', 'bike', 'truck']
+    const vehicles = ['car', 'bus', 'bicycle', 'walk', 'airplane', 'train', 'bike', 'truck']
     const dailyPromise = this.tripModel
       .aggregate([
         { $match: match },
