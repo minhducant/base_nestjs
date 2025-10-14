@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDateString, IsMongoId, IsOptional, IsString } from 'class-validator'
+import { IsDateString, IsIn, IsOptional, IsString } from 'class-validator'
 
 import { PaginationDto } from 'src/shares/dtos/pagination.dto'
 import { Trim } from 'src/shares/decorators/transforms.decorator'
@@ -22,4 +22,18 @@ export class GetTripDto extends PaginationDto {
   @IsOptional()
   @IsDateString({}, { message: 'end_date phải là chuỗi ngày hợp lệ dạng YYYY-MM-DD' })
   end_date?: string
+
+  @ApiProperty({
+    description: 'Loại chuyến đi: personal (cá nhân) hoặc business (công việc)',
+    example: 'personal',
+    enum: ['personal', 'business'],
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'type phải là chuỗi' })
+  @Trim()
+  @IsIn(['personal', 'business'], {
+    message: 'type chỉ được phép là personal hoặc business',
+  })
+  type?: string
 }

@@ -123,14 +123,17 @@ export class TripService {
   }
 
   async getReport(clientId: string, getTripDto: GetTripDto): Promise<any> {
-    const { start_date, end_date } = getTripDto
+    const { start_date, end_date, type } = getTripDto
     const start = start_date ? new Date(`${start_date}T00:00:00.000Z`) : null
     const end = end_date ? new Date(`${end_date}T23:59:59.999Z`) : null
-    const match = {
+    const match: any = {
       client_id: new mongoose.Types.ObjectId(clientId),
       status: 'ended',
       createdAt: { $gte: start, $lte: end },
     }
+    // if (type) {
+    //   match.type = type
+    // }
     const vehicles = ['car', 'bus', 'bicycle', 'walk', 'airplane', 'train', 'bike', 'truck']
     const dailyPromise = this.tripModel
       .aggregate([
@@ -140,7 +143,17 @@ export class TripService {
             _id: {
               $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
             },
-            value: { $sum: '$co2_estimated' },
+            value: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [{ $eq: ['$co2', null] }, { $eq: ['$co2', 0] }],
+                  },
+                  '$co2_estimated',
+                  '$co2',
+                ],
+              },
+            },
           },
         },
         {
@@ -159,7 +172,17 @@ export class TripService {
         {
           $group: {
             _id: '$vehicle',
-            total_co2: { $sum: '$co2_estimated' },
+            total_co2: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [{ $eq: ['$co2', null] }, { $eq: ['$co2', 0] }],
+                  },
+                  '$co2_estimated',
+                  '$co2',
+                ],
+              },
+            },
           },
         },
         {
