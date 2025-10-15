@@ -101,6 +101,14 @@ export class TripItem {
   vehicle: 'car' | 'motorbike' | 'bus' | 'bicycle' | 'walk' | 'airplane' | 'train' | 'bike' | 'truck'
 
   @ApiProperty({
+    enum: ['personal', 'business'],
+    example: 'personal',
+    description: 'Loại chuyến đi: cá nhân hoặc công việc',
+  })
+  @Prop({ required: true, enum: ['personal', 'business'], default: 'personal' })
+  type: 'personal' | 'business'
+
+  @ApiProperty({
     enum: ['planned', 'ongoing', 'ended'],
     example: 'planned',
     description: 'Trạng thái chuyến đi',

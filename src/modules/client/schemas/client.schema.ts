@@ -6,7 +6,6 @@ import { CLIENT_POLICY_MODEL } from './client-policy.schema'
 import { ClientRole, ClientStatus, ClientStatusMode } from 'src/shares/enums/client.enum'
 
 export const CLIENT_MODEL = 'clients'
-export const CLIENT_DELETE = 'client_deleted'
 
 @Schema({ timestamps: true, collection: CLIENT_MODEL })
 export class Client {
@@ -152,4 +151,3 @@ export class Client {
 
 export type ClientDocument = Client & Document
 export const ClientSchema = SchemaFactory.createForClass(Client)
-

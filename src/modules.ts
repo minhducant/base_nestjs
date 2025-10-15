@@ -13,7 +13,7 @@ import { MailModule } from './modules/mail/mail.module'
 import { TripModule } from './modules/trip/trip.module'
 import { GoalModule } from './modules/goal/goal.module'
 import { UsersModule } from './modules/user/user.module'
-import { UploadsModule } from './modules/upload/upload.module'
+import { SurveyModule } from './modules/survey/survey.module'
 import { ClientModule } from './modules/client/client.module'
 import { KafkaModule } from 'src/shares/kafka-client/kafka-module'
 import { HttpClientModule } from 'src/shares/http-clients/http.module'
@@ -39,6 +39,6 @@ const Modules = [
   ClientModule,
   TripModule,
   GoalModule,
-  UploadsModule,
+  SurveyModule,
 ]
 export default Modules

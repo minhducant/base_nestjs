@@ -57,7 +57,7 @@ export class GoalService {
                   },
                 },
               },
-              { $project: { _id: 1, co2: 1, createdAt: 1 } },
+              { $project: { _id: 1, co2: 1, co2_estimated: 1, createdAt: 1 } },
             ],
             as: 'trip',
           },
@@ -71,7 +71,15 @@ export class GoalService {
                     $map: {
                       input: '$trip',
                       as: 't',
-                      in: { $ifNull: ['$$t.co2', 0] },
+                      in: {
+                        $cond: {
+                          if: {
+                            $or: [{ $eq: ['$$t.co2', 0] }, { $eq: ['$$t.co2', null] }, { $not: ['$$t.co2'] }],
+                          },
+                          then: { $ifNull: ['$$t.co2_estimated', 0] },
+                          else: '$$t.co2',
+                        },
+                      },
                     },
                   },
                 },
