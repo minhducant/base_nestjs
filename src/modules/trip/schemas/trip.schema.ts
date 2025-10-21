@@ -108,6 +108,14 @@ export class TripItem {
   @Prop({ required: true, enum: ['personal', 'business'], default: 'personal' })
   type: 'personal' | 'business'
 
+   @ApiProperty({
+    enum: ['gasoline', 'electric'],
+    example: 'gasoline',
+    description: 'Loại nhiên liệu',
+  })
+  @Prop({ required: true, enum: ['gasoline', 'electric'], default: 'gasoline' })
+  fuel_type: 'gasoline' | 'electric'
+
   @ApiProperty({
     enum: ['planned', 'ongoing', 'ended'],
     example: 'planned',
